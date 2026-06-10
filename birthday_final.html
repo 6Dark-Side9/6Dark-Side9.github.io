@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🌹</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ff6b9d;
+  --rose: #e91e8c;
+  --pink-light: #ffb3d1;
+  --purple: #7c4dff;
+  --yellow: #ffd740;
+  --dark: #120a1e;
+  --dark2: #1e0f2e;
+}
+* { margin:0;padding:0;box-sizing:border-box; }
+html,body { width:100%;height:100%;overflow:hidden;font-family:'Vazirmatn',sans-serif;background:var(--dark);color:#fff; }
+
+/* ===== CONFETTI ===== */
+#confetti { position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden; }
+.cp { position:absolute;top:-20px;border-radius:2px;animation:cfFall linear infinite; }
+@keyframes cfFall { to { transform:translateY(110vh) rotate(720deg);opacity:0; } }
+
+/* ===== MUSIC PLAYER ===== */
+#music-player {
+  position:fixed;top:14px;right:16px;
+  background:rgba(255,107,157,0.15);
+  border:1px solid rgba(255,107,157,0.35);
+  backdrop-filter:blur(14px);
+  border-radius:50px;
+  padding:8px 16px;
+  display:flex;align-items:center;gap:10px;
+  z-index:200;
+  transition:all 0.3s;
+}
+#music-player:hover { background:rgba(255,107,157,0.25); }
+.music-note { font-size:18px;animation:noteFloat 2s ease-in-out infinite; }
+@keyframes noteFloat { 0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-4px) rotate(5deg);} }
+.music-info { display:flex;flex-direction:column;gap:1px; }
+.music-title { font-size:11px;opacity:0.9;white-space:nowrap; }
+.music-bar { display:flex;align-items:center;gap:6px; }
+.music-btn {
+  background:none;border:none;color:var(--pink);cursor:pointer;font-size:16px;
+  transition:transform 0.2s;padding:2px;
+}
+.music-btn:hover { transform:scale(1.2); }
+.wave-bars { display:flex;align-items:center;gap:2px;height:16px; }
+.wb { width:3px;background:var(--pink);border-radius:2px;animation:waveAnim 0.8s ease-in-out infinite; }
+.wb:nth-child(2){animation-delay:0.15s;}
+.wb:nth-child(3){animation-delay:0.3s;}
+.wb:nth-child(4){animation-delay:0.45s;}
+@keyframes waveAnim { 0%,100%{height:4px;}50%{height:14px;} }
+.wave-bars.paused .wb { animation-play-state:paused;height:4px; }
+
+/* ===== LOCK SCREEN ===== */
+#lock-screen {
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at 50% 40%,#3d1060 0%,#1a0535 50%,#0a0014 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:100;gap:18px;transition:opacity 0.8s,transform 0.8s;
+}
+#lock-screen.hide { opacity:0;transform:scale(1.08);pointer-events:none; }
+/* rose decor on lock */
+.lock-rose { font-size:48px;animation:roseFloat 3s ease-in-out infinite; }
+@keyframes roseFloat { 0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-10px) rotate(5deg);} }
+.lock-title { font-size:clamp(16px,4.5vw,24px);opacity:0.75;text-align:center;line-height:1.6; }
+.pin-dots { display:flex;gap:12px;margin:4px 0; }
+.pin-dot { width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s; }
+.pin-dot.filled { background:var(--pink);border-color:var(--pink);box-shadow:0 0 12px var(--pink); }
+.keypad { display:grid;grid-template-columns:repeat(3,68px);gap:10px;direction:ltr; }
+.key {
+  width:68px;height:68px;border-radius:50%;border:none;
+  background:rgba(255,255,255,0.07);color:#fff;
+  font-size:22px;font-family:'Vazirmatn',sans-serif;
+  cursor:pointer;transition:all 0.15s;backdrop-filter:blur(10px);
+}
+.key:active,.key:hover { background:var(--pink);transform:scale(0.92);box-shadow:0 0 18px var(--pink); }
+#error-msg { color:#ff6b6b;font-size:13px;min-height:18px; }
+@keyframes shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);} }
+
+/* ===== APP ===== */
+#app { position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity 1s; }
+#app.show { opacity:1;pointer-events:all; }
+
+/* ===== NAV DOTS ===== */
+.nav-dots {
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;z-index:50;
+}
+.nav-dot {
+  width:9px;height:9px;border-radius:50%;
+  background:rgba(255,255,255,0.2);transition:all 0.3s;cursor:pointer;
+}
+.nav-dot.active { background:var(--pink);box-shadow:0 0 8px var(--pink);width:22px;border-radius:5px; }
+
+/* ===== ARROWS ===== */
+.arrow {
+  position:fixed;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,0.08);border:none;color:#fff;
+  width:42px;height:42px;border-radius:50%;font-size:20px;
+  cursor:pointer;z-index:50;backdrop-filter:blur(10px);transition:all 0.2s;
+}
+.arrow:hover { background:var(--pink);box-shadow:0 0 14px var(--pink); }
+.arrow.left { left:10px; }
+.arrow.right { right:10px; }
+
+/* ===== SLIDES ===== */
+.slides-wrap { position:relative;width:100%;height:100dvh;overflow:hidden; }
+.slide {
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:70px 20px 20px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.5s,transform 0.5s;
+}
+.slide.active { opacity:1;pointer-events:all;transform:translateX(0)!important; }
+.slide.from-right { transform:translateX(60px); }
+.slide.from-left { transform:translateX(-60px); }
+.slide.to-left { transform:translateX(-60px); }
+.slide.to-right { transform:translateX(60px); }
+
+/* ============================
+   SLIDE 1 — WELCOME
+   ============================ */
+#s1 { background:radial-gradient(ellipse at 50% 50%,#3a1055 0%,#1a0a2e 60%,#0a0014 100%); }
+.s1-roses {
+  display:flex;gap:8px;font-size:32px;
+  animation:fadeUp 1s 0.2s both;
+}
+.s1-roses span { animation:roseFloat 2.5s ease-in-out infinite; }
+.s1-roses span:nth-child(2){animation-delay:0.4s;}
+.s1-roses span:nth-child(3){animation-delay:0.8s;}
+.s1-hb {
+  font-size:clamp(11px,3vw,14px);letter-spacing:7px;text-transform:uppercase;
+  color:var(--pink);opacity:0.9;margin-top:14px;
+  animation:fadeUp 1s 0.4s both;
+}
+.s1-name {
+  font-size:clamp(60px,18vw,120px);font-weight:900;line-height:1;
+  background:linear-gradient(135deg,#fff 20%,#ffb3d1 50%,var(--pink) 75%,#e91e8c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-align:center;animation:fadeUp 1s 0.6s both;
+  filter:drop-shadow(0 0 30px rgba(255,107,157,0.5));
+}
+.s1-tagline {
+  font-size:clamp(14px,3.5vw,19px);opacity:0.65;text-align:center;
+  margin-top:6px;animation:fadeUp 1s 0.8s both;
+}
+.s1-emojis {
+  display:flex;gap:14px;font-size:40px;margin-top:18px;
+  animation:fadeUp 1s 1s both;
+}
+.s1-emojis span { animation:bounce 1.6s ease-in-out infinite; }
+.s1-emojis span:nth-child(2){animation-delay:0.2s;}
+.s1-emojis span:nth-child(3){animation-delay:0.4s;}
+.s1-emojis span:nth-child(4){animation-delay:0.6s;}
+.s1-btn {
+  margin-top:30px;padding:15px 38px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--pink),#e91e8c);
+  color:#fff;font-family:'Vazirmatn',sans-serif;font-size:16px;font-weight:700;
+  cursor:pointer;box-shadow:0 8px 30px rgba(255,107,157,0.5);
+  animation:fadeUp 1s 1.2s both;transition:transform 0.2s,box-shadow 0.2s;
+}
+.s1-btn:hover { transform:translateY(-3px);box-shadow:0 14px 40px rgba(255,107,157,0.65); }
+/* floating roses bg */
+.bg-rose {
+  position:absolute;pointer-events:none;font-size:24px;
+  animation:bgRoseFloat linear infinite;opacity:0.12;
+}
+@keyframes bgRoseFloat {
+  0% { transform:translateY(110vh) rotate(0deg);opacity:0; }
+  10% { opacity:0.15; }
+  90% { opacity:0.1; }
+  100% { transform:translateY(-10vh) rotate(360deg);opacity:0; }
+}
+
+/* ============================
+   SLIDE 2 — CAKE
+   ============================ */
+#s2 { background:radial-gradient(ellipse at 50% 40%,#2a1040 0%,#110820 70%,#080010 100%); }
+.cake-wrap { animation:fadeUp 0.8s 0.2s both; }
+.cake-svg { width:clamp(130px,32vw,190px);filter:drop-shadow(0 10px 40px rgba(255,107,157,0.45)); }
+.flame { animation:flicker 0.7s ease-in-out infinite alternate;transform-origin:bottom center; }
+@keyframes flicker { 0%{transform:scaleX(1) scaleY(1) rotate(-3deg);}100%{transform:scaleX(0.88) scaleY(1.12) rotate(3deg);} }
+.cake-q { font-size:clamp(20px,5.5vw,34px);font-weight:900;text-align:center;line-height:1.4;margin:18px 0 10px;animation:fadeUp 0.8s 0.4s both; }
+.cake-q .hi { color:var(--pink); }
+.cake-msg { font-size:clamp(13px,3.2vw,16px);opacity:0.6;text-align:center;max-width:400px;line-height:1.9;animation:fadeUp 0.8s 0.6s both; }
+
+/* ============================
+   SLIDE 3 — MEMORIES (scattered)
+   ============================ */
+#s3 {
+  background:radial-gradient(ellipse at 30% 60%,#1a0f30 0%,#0a0014 80%);
+  overflow:hidden;
+}
+.memories-title { font-size:clamp(20px,5.5vw,30px);font-weight:900;text-align:center;animation:fadeUp 0.8s 0.1s both;z-index:2;position:relative; }
+.mem-sub { font-size:13px;opacity:0.5;margin-top:4px;animation:fadeUp 0.8s 0.2s both;z-index:2;position:relative; }
+.scatter-area {
+  position:relative;width:100%;flex:1;max-height:calc(100dvh - 160px);
+  animation:fadeUp 0.8s 0.3s both;
+}
+/* each polaroid positioned absolutely */
+.pol {
+  position:absolute;background:#fff;padding:8px 8px 28px;
+  border-radius:1px;box-shadow:0 6px 24px rgba(0,0,0,0.6);
+  cursor:pointer;transition:transform 0.3s,box-shadow 0.3s,z-index 0s;
+  z-index:1;
+}
+.pol:hover { transform:scale(1.12) rotate(0deg)!important;z-index:10;box-shadow:0 16px 50px rgba(255,107,157,0.4); }
+.pol-img {
+  width:100%;aspect-ratio:1;border-radius:1px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.pol-cap { position:absolute;bottom:5px;left:0;right:0;text-align:center;color:#333;font-family:'Dancing Script',cursive;font-size:13px; }
+.pol-tape { position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:36px;height:13px;background:rgba(255,220,80,0.55); }
+
+/* Photo modal */
+#mem-modal {
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;opacity:0;pointer-events:none;transition:opacity 0.3s;
+  padding:20px;
+}
+#mem-modal.open { opacity:1;pointer-events:all; }
+.modal-card {
+  background:#fff;padding:16px 16px 36px;border-radius:2px;
+  max-width:min(380px,90vw);width:100%;
+  box-shadow:0 30px 80px rgba(0,0,0,0.8);
+  transform:scale(0.85);transition:transform 0.3s;
+  position:relative;
+}
+#mem-modal.open .modal-card { transform:scale(1); }
+.modal-img { width:100%;aspect-ratio:1;border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:70px; }
+.modal-caption { text-align:center;color:#222;font-family:'Dancing Script',cursive;font-size:22px;margin-top:10px; }
+.modal-desc { text-align:center;color:#555;font-size:13px;margin-top:6px;line-height:1.7;padding:0 8px; }
+.modal-close {
+  position:absolute;top:10px;right:10px;
+  background:rgba(0,0,0,0.1);border:none;border-radius:50%;
+  width:30px;height:30px;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ============================
+   SLIDE 4 — LONG LETTER
+   ============================ */
+#s4 {
+  background:radial-gradient(ellipse at 60% 40%,#2e0a40 0%,#150020 70%,#080010 100%);
+  overflow:hidden;
+}
+.letter-outer { width:min(400px,92vw);animation:fadeUp 0.8s 0.2s both; }
+.letter-card {
+  background:linear-gradient(145deg,#2a1545,#1a0d30);
+  border:1px solid rgba(255,107,157,0.3);
+  border-radius:14px;
+  padding:28px 24px 24px;
+  box-shadow:0 20px 60px rgba(124,77,255,0.3);
+  position:relative;overflow:hidden;
+  max-height:60dvh;overflow-y:auto;
+}
+.letter-card::-webkit-scrollbar { width:4px; }
+.letter-card::-webkit-scrollbar-track { background:transparent; }
+.letter-card::-webkit-scrollbar-thumb { background:var(--pink);border-radius:2px; }
+.letter-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--pink),var(--purple),#e91e8c,var(--pink));
+}
+.letter-roses { text-align:center;font-size:28px;margin-bottom:14px; }
+.letter-text {
+  font-size:clamp(13px,3.2vw,15px);line-height:2.1;text-align:right;
+  color:rgba(255,255,255,0.88);
+}
+.letter-text .em { color:var(--pink);font-weight:700; }
+.letter-text .em2 { color:#c8a0ff; }
+.scroll-hint { text-align:center;font-size:11px;opacity:0.4;margin-top:8px;animation:bounce 2s infinite; }
+.letter-sig { font-family:'Dancing Script',cursive;font-size:26px;color:var(--pink);text-align:center;margin-top:14px;animation:fadeUp 0.8s 0.5s both; }
+
+/* ============================
+   SLIDE 5 — GIFTS
+   ============================ */
+#s5 { background:radial-gradient(ellipse at 50% 50%,#1a1a10 0%,#0c0c08 80%); overflow-y:auto; }
+.gifts-title { font-size:clamp(22px,6vw,36px);font-weight:900;text-align:center;animation:fadeUp 0.8s 0.1s both; }
+.stitch-mascot { font-size:56px;animation:fadeUp 0.8s 0.2s both,stitch 3s ease-in-out infinite; }
+@keyframes stitch { 0%,100%{transform:rotate(-8deg) scale(1);}50%{transform:rotate(8deg) scale(1.08);} }
+.gift-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  width:min(420px,92vw);margin-top:12px;
+  animation:fadeUp 0.8s 0.4s both;
+}
+.gift-item {
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,107,157,0.2);
+  border-radius:14px;padding:14px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  transition:all 0.3s;cursor:default;
+  backdrop-filter:blur(8px);
+}
+.gift-item:hover { background:rgba(255,107,157,0.15);border-color:var(--pink);transform:translateY(-4px);box-shadow:0 10px 30px rgba(255,107,157,0.25); }
+.gift-icon { font-size:34px; }
+.gift-name { font-size:12px;font-weight:700;color:var(--pink-light); }
+.gift-desc { font-size:10px;opacity:0.55;line-height:1.5; }
+
+/* ============================
+   SLIDE 6 — FLOWERS
+   ============================ */
+#s6 { background:radial-gradient(ellipse at 50% 40%,#2a0a20 0%,#100014 80%); }
+.flowers-title { font-size:clamp(22px,6vw,36px);font-weight:900;text-align:center;animation:fadeUp 0.8s 0.2s both; }
+.big-bouquet { font-size:clamp(60px,18vw,100px);animation:fadeUp 0.8s 0.3s both,roseFloat 3s ease-in-out infinite;margin:10px 0; }
+.flowers-msg { font-size:clamp(14px,3.5vw,18px);opacity:0.7;text-align:center;max-width:380px;line-height:1.9;animation:fadeUp 0.8s 0.5s both; }
+.flower-row { display:flex;gap:10px;font-size:28px;margin-top:16px;animation:fadeUp 0.8s 0.7s both; }
+.flower-row span { animation:bounce 2s ease-in-out infinite; }
+.flower-row span:nth-child(2){animation-delay:0.2s;}
+.flower-row span:nth-child(3){animation-delay:0.4s;}
+.flower-row span:nth-child(4){animation-delay:0.6s;}
+.flower-row span:nth-child(5){animation-delay:0.8s;}
+
+/* ============================
+   SLIDE 7 — FINAL
+   ============================ */
+#s7 { background:radial-gradient(ellipse at 50% 50%,#35082a 0%,#180010 80%); }
+.final-heart { font-size:64px;animation:heartBeat 1.5s ease-in-out infinite; }
+@keyframes heartBeat { 0%,100%{transform:scale(1);}50%{transform:scale(1.22);} }
+.final-big {
+  font-size:clamp(28px,8vw,52px);font-weight:900;text-align:center;line-height:1.3;
+  margin:14px 0;
+  background:linear-gradient(135deg,#fff 20%,var(--pink-light) 55%,var(--pink) 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:fadeUp 0.8s 0.3s both;
+}
+.final-quote { font-size:clamp(13px,3.2vw,17px);opacity:0.6;text-align:center;max-width:380px;line-height:1.9;animation:fadeUp 0.8s 0.5s both; }
+.final-sig { font-family:'Dancing Script',cursive;font-size:32px;color:var(--pink);margin-top:16px;animation:fadeUp 0.8s 0.7s both; }
+.restart-btn {
+  margin-top:20px;padding:11px 26px;border-radius:50px;
+  border:1px solid rgba(255,107,157,0.4);background:transparent;
+  color:var(--pink);font-family:'Vazirmatn',sans-serif;font-size:13px;
+  cursor:pointer;transition:all 0.2s;animation:fadeUp 0.8s 0.9s both;
+}
+.restart-btn:hover { background:var(--pink);color:#fff; }
+
+/* ===== GENERAL ===== */
+@keyframes fadeUp { from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);} }
+@keyframes bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+@keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+
+/* ============================
+   SLIDE 8 — TIMER
+   ============================ */
+#s8 { background:radial-gradient(ellipse at 50% 45%,#1e0840,#0c0020 80%); }
+.tmr-title { font-size:clamp(18px,4.5vw,26px);font-weight:900;text-align:center;animation:fadeUp .7s .1s both; }
+.tmr-heart { font-size:48px;animation:heartBeat 1.4s ease-in-out infinite,fadeUp .7s .2s both; }
+.tmr-boxes { display:flex;gap:8px;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s .3s both; }
+.tbox { background:rgba(255,255,255,.07);border:1px solid rgba(255,107,157,.25);border-radius:12px;padding:12px 10px;min-width:62px;text-align:center;backdrop-filter:blur(8px); }
+.tbox-n { font-size:clamp(22px,6.5vw,36px);font-weight:900;color:var(--pink);line-height:1; }
+.tbox-l { font-size:10px;opacity:.5;margin-top:2px; }
+.tmr-stats { display:flex;flex-direction:column;gap:8px;width:min(360px,90vw);margin-top:10px;animation:fadeUp .7s .5s both; }
+.tmr-stat { background:rgba(255,255,255,.05);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,.07); }
+.tmr-stat-l { font-size:13px;opacity:.65; }
+.tmr-stat-v { font-size:13px;font-weight:700;color:var(--pink-light); }
+.tmr-msg { font-size:clamp(12px,3vw,15px);opacity:.55;text-align:center;max-width:360px;line-height:1.9;margin-top:8px;animation:fadeUp .7s .7s both; }
+
+/* ============================
+   SLIDE 9 — WHY I LOVE YOU
+   ============================ */
+#s9 { background:radial-gradient(ellipse at 50% 40%,#251035,#100018 80%); }
+.why-title { font-size:clamp(20px,5.5vw,30px);font-weight:900;text-align:center;animation:fadeUp .7s .1s both; }
+.why-sub { font-size:13px;opacity:.45;margin-top:4px;animation:fadeUp .7s .2s both; }
+.why-list {
+  display:flex;flex-direction:column;gap:8px;width:min(380px,92vw);margin-top:14px;
+  max-height:calc(100dvh - 200px);overflow-y:auto;animation:fadeUp .7s .3s both;
+}
+.why-list::-webkit-scrollbar { width:3px; }
+.why-list::-webkit-scrollbar-thumb { background:var(--pink);border-radius:2px; }
+.why-item { background:rgba(255,255,255,.055);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(255,107,157,.12);transition:all .3s; }
+.why-item:hover { background:rgba(255,107,157,.12);border-color:rgba(255,107,157,.35); }
+.why-num { color:var(--pink);font-weight:900;font-size:16px;flex-shrink:0;min-width:22px; }
+.why-text { font-size:13px;opacity:.8;line-height:1.7; }
+
+/* ============================
+   HINT POPUP
+   ============================ */
+#hint-popup {
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  display:none;align-items:center;justify-content:center;z-index:250;padding:20px;
+}
+.hint-card {
+  background:linear-gradient(145deg,#2a1545,#1a0d30);
+  border:1px solid rgba(255,107,157,.35);border-radius:20px;
+  padding:28px 24px;max-width:300px;width:100%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.hint-card h3 { color:var(--pink);font-size:18px;margin-bottom:12px; }
+.hint-card p { font-size:14px;opacity:.75;line-height:1.8; }
+.hint-close-btn {
+  margin-top:18px;padding:9px 24px;border-radius:20px;border:none;
+  background:var(--pink);color:#fff;font-family:'Vazirmatn',sans-serif;font-size:14px;cursor:pointer;
+}
+
+@media (max-width:480px) {
+  .arrow{width:36px;height:36px;font-size:16px;}
+  .key{width:60px;height:60px;font-size:20px;}
+  .keypad{grid-template-columns:repeat(3,60px);gap:8px;}
+  #music-player { padding:6px 12px;gap:7px; }
+}
+</style>
+</head>
+<body>
+
+<!-- CONFETTI -->
+<div id="confetti"></div>
+
+<!-- AUDIO -->
+<audio id="bg-audio" loop preload="none"></audio>
+
+<!-- MUSIC PLAYER -->
+<div id="music-player">
+  <span class="music-note">🎵</span>
+  <div class="music-info">
+    <div class="music-title">Happy Birthday Song</div>
+    <div class="music-bar">
+      <button class="music-btn" id="play-btn" onclick="toggleMusic()">▶</button>
+      <div class="wave-bars paused" id="wave">
+        <div class="wb"></div><div class="wb"></div>
+        <div class="wb"></div><div class="wb"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIO (uses a simple melody via Web Audio API, no external file needed) -->
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <!-- floating roses -->
+  <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0.18;" id="lock-bg-roses"></div>
+  <div class="lock-rose">🌹</div>
+  <div class="lock-title">یه سورپرایز کوچولو داری...<br><span style="font-size:0.85em;color:var(--pink);">پسوردتو بزن 🌸</span></div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div><div class="pin-dot" id="d4"></div>
+  </div>
+  <div id="error-msg"></div>
+  <div class="keypad">
+    <button class="key" onclick="addPin('1')">1</button>
+    <button class="key" onclick="addPin('2')">2</button>
+    <button class="key" onclick="addPin('3')">3</button>
+    <button class="key" onclick="addPin('4')">4</button>
+    <button class="key" onclick="addPin('5')">5</button>
+    <button class="key" onclick="addPin('6')">6</button>
+    <button class="key" onclick="addPin('7')">7</button>
+    <button class="key" onclick="addPin('8')">8</button>
+    <button class="key" onclick="addPin('9')">9</button>
+    <button class="key" style="font-size:16px" onclick="clearPin()">⌫</button>
+    <button class="key" onclick="addPin('0')">0</button>
+    <button class="key" style="font-size:15px" onclick="clearAll()">✕</button>
+  </div>
+  <button onclick="document.getElementById('hint-popup').style.display='flex'"
+    style="background:none;border:1px solid rgba(255,107,157,0.35);border-radius:20px;padding:5px 14px;color:rgba(255,255,255,0.5);font-family:'Vazirmatn',sans-serif;font-size:12px;cursor:pointer;margin-top:4px;">
+    💡 راهنمایی
+  </button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="nav-dots" id="nav-dots"></div>
+  <button class="arrow left"  id="arr-left" onclick="prevSlide()">‹</button>
+  <button class="arrow right" onclick="nextSlide()">›</button>
+
+  <div class="slides-wrap">
+
+    <!-- S1: WELCOME -->
+    <div class="slide active from-right" id="s1">
+      <div id="s1-bg" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+      <div class="s1-roses"><span>🌹</span><span>🌸</span><span>🌹</span></div>
+      <div class="s1-hb">✨ Happy Birthday ✨</div>
+      <div class="s1-name">نت</div>
+      <div class="s1-tagline">امروز، روز توئه عشقم 🌸</div>
+      <div class="s1-emojis">
+        <span>🎉</span><span>🎂</span><span>🌹</span><span>🎊</span>
+      </div>
+      <button class="s1-btn" onclick="nextSlide()">🎁 بزن بریم &nbsp;←</button>
+    </div>
+
+    <!-- S2: CAKE -->
+    <div class="slide from-right" id="s2">
+      <div class="cake-wrap">
+        <svg class="cake-svg" viewBox="0 0 200 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- multiple candles -->
+          <ellipse class="flame" cx="80" cy="34" rx="5" ry="9" fill="#ffd740" opacity="0.95"/>
+          <ellipse class="flame" cx="80" cy="37" rx="3" ry="5" fill="#ff9a3c"/>
+          <rect x="76" y="43" width="8" height="18" rx="2" fill="#f8d7ff"/>
+          <ellipse class="flame" cx="120" cy="34" rx="5" ry="9" fill="#ffd740" opacity="0.95"/>
+          <ellipse class="flame" cx="120" cy="37" rx="3" ry="5" fill="#ff9a3c"/>
+          <rect x="116" y="43" width="8" height="18" rx="2" fill="#d7e8ff"/>
+          <ellipse class="flame" cx="100" cy="28" rx="6" ry="11" fill="#ffd740"/>
+          <ellipse class="flame" cx="100" cy="32" rx="4" ry="6" fill="#ff9a3c"/>
+          <rect x="95" y="40" width="10" height="22" rx="2" fill="#ffdde8"/>
+          <!-- layer 1 top -->
+          <ellipse cx="100" cy="68" rx="55" ry="11" fill="#fff0f5"/>
+          <rect x="45" y="68" width="110" height="34" rx="3" fill="#fce4ec"/>
+          <ellipse cx="100" cy="102" rx="55" ry="11" fill="#f8bbd9"/>
+          <!-- pink drips -->
+          <path d="M62 68 Q60 84 64 102" stroke="#ff6b9d" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M82 68 Q80 88 84 102" stroke="#ff6b9d" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M118 68 Q120 88 116 102" stroke="#ff6b9d" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <path d="M138 68 Q140 84 136 102" stroke="#ff6b9d" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <!-- roses on cake -->
+          <text x="94" y="92" font-size="14">🌹</text>
+          <!-- layer 2 -->
+          <ellipse cx="100" cy="102" rx="63" ry="13" fill="#f3e5f5"/>
+          <rect x="37" y="102" width="126" height="44" rx="5" fill="#ede7f6"/>
+          <ellipse cx="100" cy="146" rx="63" ry="13" fill="#ce93d8"/>
+          <!-- decorations -->
+          <circle cx="60" cy="126" r="5" fill="#ff6b9d"/>
+          <circle cx="90" cy="120" r="5" fill="#ffd740"/>
+          <circle cx="120" cy="126" r="5" fill="#7c4dff"/>
+          <circle cx="140" cy="120" r="5" fill="#40e0d0"/>
+          <circle cx="75" cy="134" r="4" fill="#ff9a3c"/>
+          <circle cx="105" cy="132" r="4" fill="#f48fb1"/>
+          <circle cx="128" cy="134" r="4" fill="#80deea"/>
+          <!-- bottom plate -->
+          <ellipse cx="100" cy="148" rx="70" ry="11" fill="#b39ddb" opacity="0.6"/>
+          <!-- plate shadow -->
+          <ellipse cx="100" cy="155" rx="72" ry="7" fill="rgba(0,0,0,0.25)"/>
+        </svg>
+      </div>
+      <div class="cake-q">تولدت <span class="hi">مبارک</span> باشه<br>نت جونم 🌹</div>
+      <div class="cake-msg">هر شمعی که فوت می‌کنی یه آرزوی قشنگه...<br>امیدوارم همه آرزوهات برآورده بشه 💫</div>
+    </div>
+
+    <!-- S3: MEMORIES -->
+    <div class="slide from-right" id="s3">
+      <div class="memories-title">خاطره‌هامون 📸</div>
+      <div class="mem-sub">روی هر عکس کلیک کن 🌸</div>
+      <div class="scatter-area" id="scatter-area">
+        <!-- polaroids inserted by JS -->
+      </div>
+    </div>
+
+    <!-- S4: LONG LETTER -->
+    <div class="slide from-right" id="s4">
+      <div class="letter-outer">
+        <div class="letter-card" id="letter-scroll">
+          <div class="letter-roses">🌹💌🌹</div>
+          <div class="letter-text">
+            <span class="em">نت</span> عزیزم،<br><br>
+            نمی‌دونم از کجا شروع کنم، چون کلمه‌ها برای گفتن اون چیزی که توی قلبمه کافی نیستن...<br><br>
+            از اون روزی که تو زندگیم اومدی، همه‌چیز فرق کرد. انگار یه رنگ جدید به دنیام اضافه شد — <span class="em">رنگ صورتی</span>. رنگ رزهایی که هر بار بهشون نگاه می‌کنم به یاد تو می‌افتم.<br><br>
+            دوست دارم بدونی که هر وقت پیامت می‌رسه، لبخند میشینه رو لبم. هر وقت صدات می‌شنوم، دنیا کمی قشنگ‌تر میشه. هر وقت باهاتم، حتی اگه از پشت صفحه باشه، یه آرامش خاصی دارم که هیچ‌جای دیگه‌ای پیداش نمیشه.<br><br>
+            <span class="em2">می‌خوام بدونی که تو هیچ‌وقت تنها نیستی.</span> هر وقت غمگینی، هر وقت خوشحالی، هر وقت دیوونه شدی از دنیا — من اینجام. کنارتم. همیشه.<br><br>
+            تولدت داره یادم می‌ندازه که چقدر خوشحالم که تو دنیا هستی. که این آدم که هر روز باهاش حرف می‌زنم، این آدمی که می‌خندونتم و گاهی دیوونه‌ام می‌کنه 😄 — <span class="em">وجود داره</span>.<br><br>
+            امیدوارم این سالی که وارد میشی، پر از لحظه‌های قشنگ باشه. پر از خنده، پر از آرامش، پر از چیزایی که دوست داری. لایقشی، واقعاً.<br><br>
+            <span class="em">دوستت دارم</span> — بیشتر از اونچیزی که فکرشو بکنی، بیشتر از اونی که بتونم توضیح بدم.<br><br>
+            🌹 تولدت مبارک، نت کوچولو 🌹
+          </div>
+        </div>
+        <div class="scroll-hint">↕ برای خوندن اسکرول کن</div>
+      </div>
+      <div class="letter-sig">با تمام عشقم، rojd 🖊️</div>
+    </div>
+
+    <!-- S5: GIFTS -->
+    <div class="slide from-right" id="s5">
+      <div class="gifts-title">کادوهات 🎀</div>
+      <div class="stitch-mascot">🧸</div>
+      <div class="gift-grid">
+        <div class="gift-item">
+          <div class="gift-icon">🍫</div>
+          <div class="gift-name">نوتلا</div>
+          <div class="gift-desc">کرم کاکائو خوشمزه برات</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">🍓</div>
+          <div class="gift-name">شیر توت‌فرنگی</div>
+          <div class="gift-desc">پینک و شیرین عین خودت 🌸</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">🍫</div>
+          <div class="gift-name">شیر کاکائو</div>
+          <div class="gift-desc">برای شب‌های دیر</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">🍬</div>
+          <div class="gift-name">پاستیل نوشابه‌ای</div>
+          <div class="gift-desc">ترش و شیرین باهم 😋</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">☁️</div>
+          <div class="gift-name">مارشمالو نواری</div>
+          <div class="gift-desc">نرم و قنبیل مثل تو 🤍</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">💜</div>
+          <div class="gift-name">استیچ صورتی</div>
+          <div class="gift-desc">Lilo & Stitch — فقط برات</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">🌹</div>
+          <div class="gift-name">دسته گل رز</div>
+          <div class="gift-desc">صورتی، عین قلبم برات</div>
+        </div>
+        <div class="gift-item">
+          <div class="gift-icon">💌</div>
+          <div class="gift-name">عشق بی‌نهایت</div>
+          <div class="gift-desc">همیشه و برای همیشه ❤️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: FLOWERS -->
+    <div class="slide from-right" id="s6">
+      <div class="flowers-title">یه دسته گل برات 🌸</div>
+      <div class="big-bouquet">💐</div>
+      <div class="flowers-msg">
+        رزهای صورتی — رنگ مورد علاقه‌ات 🌹<br>
+        هر گل این دسته، یه دلیله که دوستت دارم.<br>
+        و دلیل‌هام خیلی زیادن...
+      </div>
+      <div class="flower-row">
+        <span>🌹</span><span>🌸</span><span>🌺</span><span>🌸</span><span>🌹</span>
+      </div>
+    </div>
+
+    <!-- S8: TIMER -->
+    <div class="slide from-right" id="s8">
+      <div class="tmr-title">چقدر وقته که دارمت ⏳</div>
+      <div class="tmr-heart">💕</div>
+      <div class="tmr-boxes" id="tmr-boxes"></div>
+      <div class="tmr-stats" id="tmr-stats"></div>
+      <div class="tmr-msg" id="tmr-msg"></div>
+    </div>
+
+    <!-- S9: WHY I LOVE YOU -->
+    <div class="slide from-right" id="s9">
+      <div class="why-title">چرا دوستت دارم 💕</div>
+      <div class="why-sub">۱۰ دلیل از میلیون‌ها دلیل</div>
+      <div class="why-list">
+        <div class="why-item"><div class="why-num">۱</div><div class="why-text">چون وقتی می‌خندی، دنیا قشنگ‌تر میشه 🌸</div></div>
+        <div class="why-item"><div class="why-num">۲</div><div class="why-text">چون حتی از پشت صفحه هم می‌تونم حسش کنم که چقدر مهمی</div></div>
+        <div class="why-item"><div class="why-num">۳</div><div class="why-text">چون رزهای صورتی هر بار که می‌بینمشون یادت می‌افتم 🌹</div></div>
+        <div class="why-item"><div class="why-num">۴</div><div class="why-text">چون وقتی باهام حرف می‌زنی، وقت رد میشه و نمی‌فهمم</div></div>
+        <div class="why-item"><div class="why-num">۵</div><div class="why-text">چون آدم منحصربه‌فردی هستی و هیچ‌کس مثل تو نیست</div></div>
+        <div class="why-item"><div class="why-num">۶</div><div class="why-text">چون شب‌هایی که دیر بیداری و باهام حرف می‌زنی ارزششو دارن 🌙</div></div>
+        <div class="why-item"><div class="why-num">۷</div><div class="why-text">چون Minecraft باهات فرق داشت، هر بازی باهات فرق داره 🎮</div></div>
+        <div class="why-item"><div class="why-num">۸</div><div class="why-text">چون حتی وقتی دیوونه‌ام می‌کنی هم دوستت دارم 😄</div></div>
+        <div class="why-item"><div class="why-num">۹</div><div class="why-text">چون فکر می‌کنم توی یه دنیای موازی هم دوستت داشتم</div></div>
+        <div class="why-item"><div class="why-num">۱۰</div><div class="why-text">چون تو فقط تویی — و همین کافیه 🌹</div></div>
+      </div>
+    </div>
+
+    <!-- S10: FINAL -->
+    <div class="slide from-right" id="s10">
+      <div class="final-heart">💕</div>
+      <div class="final-big">تولدت مبارک<br>نت جونم 🌹</div>
+      <div class="final-quote">
+        «دوستت دارم بیشتر از اونی که بتونم بگم»<br>
+        امیدوارم این سال بهترین سال زندگیت باشه 🌟
+      </div>
+      <div class="final-sig">rojd 💗</div>
+      <button class="restart-btn" onclick="goTo(0)">↩ از اول ببین</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MEMORY MODAL -->
+<div id="mem-modal" onclick="closeModal(event)">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal(null,true)">✕</button>
+    <div class="modal-img" id="modal-img"></div>
+    <div class="modal-caption" id="modal-caption"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+  </div>
+</div>
+
+<script>
+// ===== CONFETTI =====
+const COLORS = ['#ff6b9d','#ffd740','#40e0d0','#7c4dff','#ff9a3c','#f06292','#c8a0ff','#ffb3d1'];
+const cf = document.getElementById('confetti');
+for(let i=0;i<70;i++){
+  const el=document.createElement('div');
+  el.className='cp';
+  el.style.cssText=`left:${Math.random()*100}%;background:${COLORS[Math.floor(Math.random()*COLORS.length)]};animation-duration:${3.5+Math.random()*5}s;animation-delay:${Math.random()*6}s;width:${5+Math.random()*6}px;height:${10+Math.random()*10}px;opacity:${0.5+Math.random()*0.5};`;
+  cf.appendChild(el);
+}
+
+// ===== LOCK BG ROSES =====
+const lockBg=document.getElementById('lock-bg-roses');
+['🌹','🌸','🌺','🌷'].forEach((r,i)=>{
+  const s=document.createElement('div');
+  s.style.cssText=`position:absolute;font-size:${24+i*8}px;left:${10+i*22}%;animation:bgRoseFloat ${10+i*3}s ${i*2}s linear infinite;`;
+  s.textContent=r;lockBg.appendChild(s);
+});
+
+// ===== SLIDE 1 BG ROSES =====
+const s1bg=document.getElementById('s1-bg');
+for(let i=0;i<8;i++){
+  const r=document.createElement('div');r.className='bg-rose';
+  r.style.cssText=`left:${Math.random()*100}%;font-size:${16+Math.random()*20}px;animation-duration:${10+Math.random()*10}s;animation-delay:${Math.random()*10}s;`;
+  r.textContent=['🌹','🌸','🌺'][i%3];s1bg.appendChild(r);
+}
+
+// ============================================================
+// ★★★  CONFIG — اینجا تنظیم کن  ★★★
+// ============================================================
+// لینک یا مسیر فایل آهنگ (مثال: 'song.mp3' یا 'https://...')
+const MUSIC_URL  = '';
+const MUSIC_NAME = 'Happy Birthday 🌹';
+
+// تاریخ شروع رابطه  (فرمت: YYYY-MM-DD)
+const TOGETHER_SINCE = '2024-08-15';
+// تاریخ تولد (فرمت: YYYY-MM-DD)
+const BIRTH_DATE = '2006-06-08';
+// ============================================================
+
+const bgAudio = document.getElementById('bg-audio');
+if(MUSIC_URL){
+  bgAudio.src = MUSIC_URL;
+  document.querySelector('.music-title').textContent = MUSIC_NAME;
+}
+
+function toggleMusic(){
+  if(!MUSIC_URL){
+    alert('لینک آهنگو توی کد اضافه کن!\nدنبال خط MUSIC_URL بگرد 🎵');
+    return;
+  }
+  if(bgAudio.paused){ bgAudio.play().catch(()=>{}); }
+  else { bgAudio.pause(); }
+}
+
+function setMusicState(playing){
+  document.getElementById('play-btn').textContent = playing ? '⏸' : '▶';
+  document.getElementById('wave').classList.toggle('paused', !playing);
+}
+bgAudio.addEventListener('play',  ()=>setMusicState(true));
+bgAudio.addEventListener('pause', ()=>setMusicState(false));
+
+// ===== PIN =====
+let pin='';const CORRECT='0609';
+function addPin(d){
+  if(pin.length>=4)return;
+  pin+=d;updateDots();
+  if(pin.length===4)setTimeout(checkPin,200);
+}
+function clearPin(){ pin=pin.slice(0,-1);updateDots();document.getElementById('error-msg').textContent=''; }
+function clearAll(){ pin='';updateDots();document.getElementById('error-msg').textContent=''; }
+function updateDots(){
+  for(let i=1;i<=4;i++) document.getElementById('d'+i).classList.toggle('filled',i<=pin.length);
+}
+function checkPin(){
+  if(pin===CORRECT){
+    document.getElementById('lock-screen').classList.add('hide');
+    setTimeout(()=>{
+      document.getElementById('lock-screen').style.display='none';
+      document.getElementById('app').classList.add('show');
+    },800);
+  } else {
+    const err=document.getElementById('error-msg');
+    err.textContent='پسورد اشتباهه! 😅';
+    err.style.animation='none';
+    setTimeout(()=>{err.style.animation='shake 0.4s';},10);
+    pin='';setTimeout(()=>{updateDots();},300);
+  }
+}
+
+// ===== SLIDES =====
+const TOTAL=9;
+let current=0;
+let animating=false;
+
+// Build nav dots
+const navDotsEl=document.getElementById('nav-dots');
+for(let i=0;i<TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='nav-dot'+(i===0?' active':'');
+  d.onclick=(()=>{const n=i;return()=>goTo(n);})();
+  navDotsEl.appendChild(d);
+}
+
+function goTo(n){
+  if(n===current||animating)return;
+  animating=true;
+  const allSlides=document.querySelectorAll('.slide');
+  const allDots=document.querySelectorAll('.nav-dot');
+  const dir=n>current?1:-1;
+  const prev=current;
+
+  // exit current
+  allSlides[prev].classList.remove('active');
+  allSlides[prev].classList.add(dir>0?'to-left':'to-right');
+
+  // prepare next (off-screen)
+  allSlides[n].classList.remove('to-left','to-right','from-left','from-right');
+  allSlides[n].classList.add(dir>0?'from-right':'from-left');
+  // force reflow
+  allSlides[n].getBoundingClientRect();
+  // animate in
+  setTimeout(()=>{
+    allSlides[n].classList.add('active');
+    allSlides[n].classList.remove('from-left','from-right');
+  },30);
+
+  allDots[prev].classList.remove('active');
+  allDots[n].classList.add('active');
+  current=n;
+  // update left arrow visibility
+  document.getElementById('arr-left').style.opacity=current===0?'0.2':'1';
+  document.getElementById('arr-left').style.pointerEvents=current===0?'none':'all';
+  // special slide triggers
+  if(n===6) buildTimer();
+  setTimeout(()=>{
+    allSlides[prev].classList.remove('to-left','to-right');
+    animating=false;
+  },500);
+}
+
+function nextSlide(){ if(current<TOTAL-1)goTo(current+1); }
+function prevSlide(){ if(current>0)goTo(current-1); }
+
+// init arrow state
+document.getElementById('arr-left').style.opacity='0.2';
+document.getElementById('arr-left').style.pointerEvents='none';
+
+// Swipe
+let sx=0;
+document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=sx-e.changedTouches[0].clientX;
+  if(Math.abs(dx)>50){dx>0?nextSlide():prevSlide();}
+});
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')nextSlide();
+  if(e.key==='ArrowRight')prevSlide();
+});
+
+// ===== MEMORIES POLAROIDS =====
+const memories=[
+  {emoji:'🎮',grad:'135deg,#667eea,#764ba2',cap:'Minecraft ما',desc:'اون روزایی که تو Minecraft باهم بازی می‌کردیم... از BedWars گرفته تا ساختن خونه‌های قشنگ. بهترین تیم دنیا بودیم 💪'},
+  {emoji:'💬',grad:'135deg,#f093fb,#f5576c',cap:'اولین چت',desc:'یادم هست اولین پیامی که دادم... نمی‌دونستم این آدم بعداً مهم‌ترین کس زندگیم میشه. ممنون که جواب دادی 🌸'},
+  {emoji:'🌙',grad:'135deg,#2c3e88,#4facfe',cap:'شب‌های دیر',desc:'اون شب‌هایی که تا دیروقت بیدار بودیم و حرف می‌زدیم... از هر چیزی. این لحظه‌ها رو هیچ‌وقت فراموش نمی‌کنم 🌟'},
+  {emoji:'😂',grad:'135deg,#f7971e,#ffd200',cap:'خنده‌هامون',desc:'خنده‌هایی که باهات داشتم... گاهی دیوونه‌وار. تنها کسی هستی که می‌تونه اینقدر بخندونتم 🤣'},
+  {emoji:'🌹',grad:'135deg,#e91e8c,#ff6b9d',cap:'رزهای صورتی',desc:'هر بار که یه گل صورتی می‌بینم به یادت می‌افتم. این رنگ دیگه برای همیشه "رنگ نت" شد توی ذهنم 💕'},
+  {emoji:'🎵',grad:'135deg,#11998e,#38ef7d',cap:'موزیک باهم',desc:'آهنگایی که برام فرستادی، اونایی که با هم گوش دادیم... هر بار که می‌شنوم یه لبخند رو لبم میشینه 🎶'},
+  {emoji:'☕',grad:'135deg,#3e2723,#795548',cap:'شب‌های چایی',desc:'اون وقتایی که هر دو بیدار بودیم و از آینده حرف می‌زدیم... یه آرامش خاصی داشت 🌙'},
+  {emoji:'💌',grad:'135deg,#ad1457,#d81b60',cap:'پیام‌هامون',desc:'هر پیامی که فرستادی، هر کلمه‌ای که نوشتی — همه‌شون توی قلبمن 💕'},
+  {emoji:'⭐',grad:'135deg,#1a1200,#f57f17',cap:'لحظه‌های طلایی',desc:'هر لحظه‌ای که باهاتم، یه ستاره‌ست توی آسمونم ✨'},
+];
+
+// 9 positions — 3 rows × 3 cols — filling the area
+const positions=[
+  {top:2, left:2,  rot:-8},
+  {top:1, left:36, rot: 5},
+  {top:2, left:68, rot:-4},
+  {top:35,left:4,  rot: 7},
+  {top:34,left:36, rot:-6},
+  {top:34,left:68, rot: 6},
+  {top:66,left:2,  rot:-5},
+  {top:65,left:36, rot: 4},
+  {top:66,left:68, rot:-7},
+];
+
+const area=document.getElementById('scatter-area');
+
+function buildPolaroids(){
+  area.innerHTML='';
+  const W = area.clientWidth || 320;
+  const pw = Math.min(W * 0.26, 108);
+  memories.forEach((m,i)=>{
+    const p=positions[i];
+    const pol=document.createElement('div');
+    pol.className='pol';
+    pol.style.cssText=`top:${p.top}%;left:${p.left}%;transform:rotate(${p.rot}deg);width:${pw}px;`;
+    pol.innerHTML=`
+      <div class="pol-tape"></div>
+      <div class="pol-img" style="background:linear-gradient(${m.grad})">${m.emoji}</div>
+      <div class="pol-cap">${m.cap}</div>
+    `;
+    pol.addEventListener('click',()=>openModal(m));
+    area.appendChild(pol);
+  });
+}
+buildPolaroids();
+window.addEventListener('resize', buildPolaroids);
+
+function openModal(m){
+  document.getElementById('modal-img').style.background=`linear-gradient(${m.grad})`;
+  document.getElementById('modal-img').textContent=m.emoji;
+  document.getElementById('modal-caption').textContent=m.cap;
+  document.getElementById('modal-desc').textContent=m.desc;
+  document.getElementById('mem-modal').classList.add('open');
+}
+function closeModal(e,force){
+  if(force||e.target===document.getElementById('mem-modal'))
+    document.getElementById('mem-modal').classList.remove('open');
+}
+
+// ===== TIMER =====
+let timerBuilt=false;
+function buildTimer(){
+  if(timerBuilt)return; timerBuilt=true;
+  const since = new Date(TOGETHER_SINCE);
+  const birth = new Date(BIRTH_DATE);
+  const now   = new Date();
+  const totalDays = Math.floor((now - since) / 864e5);
+  const years  = Math.floor(totalDays / 365);
+  const months = Math.floor((totalDays % 365) / 30);
+  const days   = totalDays % 30;
+  const hours  = now.getHours();
+  const mins   = now.getMinutes();
+  const ageDays = Math.floor((now - birth) / 864e5);
+
+  const boxes=[{n:years,l:'سال'},{n:months,l:'ماه'},{n:days,l:'روز'},{n:hours,l:'ساعت'},{n:mins,l:'دقیقه'}];
+  const tb=document.getElementById('tmr-boxes'); tb.innerHTML='';
+  boxes.forEach(b=>{
+    const d=document.createElement('div'); d.className='tbox';
+    d.innerHTML=`<div class="tbox-n" id="tb_${b.l}">${String(b.n).padStart(2,'0')}</div><div class="tbox-l">${b.l}</div>`;
+    tb.appendChild(d);
+  });
+
+  const stats=[
+    {l:`از ${ageDays.toLocaleString('fa')} روز زندگیت`, v:`${totalDays.toLocaleString('fa')} روزشو کنارم بودی`},
+    {l:'خاطره‌های مشترک', v:'هر روز یکی جدید ✨'},
+    {l:'دوستت دارم گفتم',  v:'کمتر از اونی که باید 🌹'},
+  ];
+  const sb=document.getElementById('tmr-stats'); sb.innerHTML='';
+  stats.forEach(s=>{
+    const d=document.createElement('div'); d.className='tmr-stat';
+    d.innerHTML=`<span class="tmr-stat-l">${s.l}</span><span class="tmr-stat-v">${s.v}</span>`;
+    sb.appendChild(d);
+  });
+
+  document.getElementById('tmr-msg').textContent=
+    `${totalDays.toLocaleString('fa')} روزه که توی زندگیمی... و هر روز بهتر از دیروزه 💕`;
+
+  setInterval(()=>{
+    const n=new Date();
+    const h=document.getElementById('tb_ساعت');
+    const m=document.getElementById('tb_دقیقه');
+    if(h) h.textContent=String(n.getHours()).padStart(2,'0');
+    if(m) m.textContent=String(n.getMinutes()).padStart(2,'0');
+  },30000);
+}
+</script><!-- HINT POPUP -->
+<div id="hint-popup" onclick="if(event.target===this)this.style.display='none'">
+  <div class="hint-card">
+    <h3>🔐 راهنمایی</h3>
+    <p>پسورد یه عدد ۴ رقمیه...<br>
+    فکر کن به تاریخ تولدت! 😉<br><br>
+    <span style="color:var(--pink);font-weight:700">اشاره:</span> ماه و روز تولدته 🌹</p>
+    <button class="hint-close-btn" onclick="document.getElementById('hint-popup').style.display='none'">فهمیدم! 😄</button>
+  </div>
+</div>
+
+</body>
+</html>
